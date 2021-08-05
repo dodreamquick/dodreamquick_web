@@ -102,19 +102,15 @@ class OrderForm extends React.Component {
                     receiver_phone: default_arrival_location.phone || "",
                 })
             }
-
-            await this.update_order_price()
         }
         const policies = await getPolicy()
         this.setState({policies})
     }
 
     async componentDidUpdate(prevProps, prevState, snapshot) {
-        if (this.state.sender_address && this.state.receiver_address) {
-            if (prevState.sender_address !== this.state.sender_address ||
-                prevState.receiver_address !== this.state.receiver_address) {
-                await this.update_order_price()
-            }
+        if (prevState.sender_address !== this.state.sender_address ||
+            prevState.receiver_address !== this.state.receiver_address) {
+            await this.update_order_price()
         }
     }
 
@@ -128,6 +124,11 @@ class OrderForm extends React.Component {
         await event.preventDefault();
         await event.stopPropagation();
 
+        if (this.state.prices.distance_subway_sender >= 1000 || this.state.prices.distance_subway_receiver >= 1000) {
+            alert("입력하신 물품 픽업지 또는 배송지가 지하철역으로부터 너무 멀어 접수가 어렵습니다!")
+            this.setState({isSubmitting: false});
+            return 0
+        }
         if (!this.state.prices.total) {
             alert("주문할 수 없는 지역입니다! 두드림퀵 카카오톡 플러스친구로 문의해주세요.")
             this.setState({isSubmitting: false});
@@ -323,6 +324,11 @@ class OrderForm extends React.Component {
                                         value={this.state.sender_address_detail}
                                         onChange={event => this.on_change(event)}
                                         placeholder="상세 주소 입력" required/>
+                                    {this.state.prices.distance_subway_sender >= 1000 && (
+                                        <Form.Text className="text-danger">
+                                            입력하신 물품 픽업지가 지하철역으로부터 너무 멀어 접수가 어렵습니다!
+                                        </Form.Text>
+                                    )}
                                     <Form.Text className="text-muted">
                                         주소 검색을 통해 시, 구가 포함된 정확한 주소를 입력해주세요. 입력된 주소로 택배원이 물품을 가지러 갑니다.
                                     </Form.Text>
@@ -402,6 +408,11 @@ class OrderForm extends React.Component {
                                         value={this.state.receiver_address_detail}
                                         onChange={event => this.on_change(event)}
                                         placeholder="상세 주소 입력" required/>
+                                    {this.state.prices.distance_subway_receiver >= 1000 && (
+                                        <Form.Text className="text-danger">
+                                            입력하신 배송지가 지하철역으로부터 너무 멀어 접수가 어렵습니다!
+                                        </Form.Text>
+                                    )}
                                     <Form.Text className="text-muted">
                                         주소 검색을 통해 시, 구가 포함된 정확한 주소를 입력해주세요. 입력된 주소로 택배원이 물품을 전달합니다.
                                     </Form.Text>

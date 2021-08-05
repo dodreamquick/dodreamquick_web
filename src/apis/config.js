@@ -1,8 +1,8 @@
 import axios from 'axios'
 // import * as axios_logger from 'axios-logger'
 
-export const baseURL = 'https://api.dodreamquick.com/'
-// export const baseURL = 'http://localhost:8080/'
+// export const baseURL = 'https://api.dodreamquick.com/'
+export const baseURL = 'http://localhost:8080/'
 
 export const get_header = async () => {
     let header = await {}

@@ -14,7 +14,7 @@ const Footer = () => {
                     </div>
                     <div className={styles.footerText}>
                         <div>상호명: 두드림퀵</div>
-                        <div>대표: 이가영</div>
+                        <div>대표: 이다인</div>
                         <div>사업자등록번호 : 811-88-01483</div>
                         <div>통신판매번호: 제2019-서울금천-1887호</div>
                         <div>본사: 서울특별시 금천구 가산디지털2로 98, 롯데IT캐슬 2동 1107호</div>
