@@ -53,7 +53,7 @@ class About extends React.Component {
                         onClick={() => this.on_click_tab(1)}
                         className={[styles.introTableTab, this.state.selectedTab === 1 && styles.active].join(' ')}
                     >
-                        언론 보도
+                        언론보도
                     </div>
                 </div>
                 {
