@@ -1,4 +1,6 @@
 import React from 'react'
+import Form from "react-bootstrap/Form";
+import PostCodeForm from "./PostCodeForm";
 import {getLocationList, getOrderPrices} from "../apis/api";
 import Table from 'react-bootstrap/Table'
 import styles from '../app.module.css'
@@ -26,7 +28,20 @@ class SearchCostForm extends React.Component {
         location_list: [],
         selected_departure_location: "",
         selected_arrival_location: "",
-        prices: null
+        //prices: null,
+
+        sender_address: '',
+        receiver_address: '',
+
+        sender_address_finder: false,
+        receiver_address_finder: false,
+
+        prices: {
+            default: 0,
+            addition: 0,
+            discount: 0,
+            total: 0
+        },
     }
 
     async componentDidMount() {
@@ -47,7 +62,19 @@ class SearchCostForm extends React.Component {
         prevState.selected_arrival_location !== this.state.selected_arrival_location) {
             await this.search_prices()
         }
+        if (prevState.sender_address !== this.state.sender_address ||
+            prevState.receiver_address !== this.state.receiver_address) {
+            await this.update_order_price()
+        }
+        
     }
+
+    update_order_price = async () => {
+        const prices = await getOrderPrices(this.state.sender_address, this.state.receiver_address)
+        this.setState({prices})
+    }
+
+    
 
     select_location = key => value => {
         this.setState({[key]: value})
@@ -56,6 +83,14 @@ class SearchCostForm extends React.Component {
     search_prices = async () => {
         const prices = await getOrderPrices(this.state.selected_departure_location, this.state.selected_arrival_location)
         this.setState({prices})
+    }
+
+    on_complete_search = key => address => {
+        this.setState({
+            [key]: address,
+            [key + "_detail"]: "",
+            [key + "_finder"]: false,
+        })
     }
 
     render() {
@@ -137,6 +172,102 @@ class SearchCostForm extends React.Component {
                         }
                         </tbody>
                     </Table>
+                </div>
+                
+                <div className={styles.searchCostForm}>
+                    <div className={styles.searchCostFormLabel}>
+                        <div className={styles.searchCostFormLabelTitle}>
+                            상세 배송 요금 조회
+                        </div>
+                        
+                    </div>
+                    <Form.Group className={styles.orderFormSectionRow}>
+                        <Form.Label className={styles.orderFormSectionRowName}>픽업지</Form.Label>
+                        <div className={styles.orderFormSectionRowInput}>
+                            <Form.Control
+                                id="sender_address"
+                                type="text"
+                                placeholder="주소 (클릭하여 검색)"
+                                value={this.state.sender_address}
+                                onChange={event => this.on_change(event)}
+                                onClick={() => this.setState(prevState => ({sender_address_finder: !prevState.sender_address_finder}))}
+                                readOnly required/>
+                            {
+                                this.state.sender_address_finder &&
+                                <PostCodeForm on_complete={this.on_complete_search('sender_address')}/>
+                            }
+                            {this.state.prices.distance_subway_sender >= 2000 && (
+                                <Form.Text className="text-danger">
+                                    입력하신 물품 픽업지가 지하철역으로부터 너무 멀어 접수가 어렵습니다!
+                                </Form.Text>
+                            )}
+                            <Form.Text className="text-muted">
+                                주소 검색을 통해 시, 구가 포함된 정확한 주소를 입력해주세요. 입력된 주소로 택배원이 물품을 가지러 갑니다.
+                            </Form.Text>
+                            <Form.Text className="text-muted">
+                                버스 또는 도보 이동 경로가 지나치게 긴 경우 원칙적으로 주문 접수가 취소될 수 있습니다.
+                            </Form.Text>
+                        </div>
+                    </Form.Group>
+
+                    <Form.Group className={styles.orderFormSectionRow}>
+                        <Form.Label className={styles.orderFormSectionRowName}>배송지</Form.Label>
+                        <div className={styles.orderFormSectionRowInput}>
+                            <Form.Control
+                                id="receiver_address"
+                                type="text"
+                                placeholder="주소 (클릭하여 검색)"
+                                value={this.state.receiver_address}
+                                onChange={event => this.on_change(event)}
+                                onClick={() => this.setState(prevState => ({receiver_address_finder: !prevState.receiver_address_finder}))}
+                                readOnly required/>
+                            {
+                                this.state.receiver_address_finder &&
+                                <PostCodeForm on_complete={this.on_complete_search('receiver_address')}/>
+                            }
+                            
+                            {this.state.prices.distance_subway_receiver >= 2000 && (
+                                <Form.Text className="text-danger">
+                                    입력하신 배송지가 지하철역으로부터 너무 멀어 접수가 어렵습니다!
+                                </Form.Text>
+                            )}
+                            <Form.Text className="text-muted">
+                                주소 검색을 통해 시, 구가 포함된 정확한 주소를 입력해주세요. 입력된 주소로 택배원이 물품을 전달합니다.
+                            </Form.Text>
+                            <Form.Text className="text-muted">
+                                버스 또는 도보 이동 경로가 지나치게 긴 경우 원칙적으로 주문 접수가 취소될 수 있습니다.
+                            </Form.Text>
+                        </div>
+                    </Form.Group>
+                    
+
+                    <Form.Group className={styles.orderFormSectionRow}>
+                        <Form.Label className={styles.orderFormSectionRowName}>
+                            결제 금액
+                        </Form.Label>
+                        <Form.Label>
+                            <div className={[styles.orderFormSectionRowInput, styles.priceRow].join(' ')}>
+                                <p className={this.state.prices.discount ? styles.prevPrice : ''}>
+                                    {(this.state.prices.default + this.state.prices.addition).toLocaleString()} 원
+                                </p>
+                                {this.state.prices.discount ? (
+                                    <p>{(this.state.prices.total).toLocaleString()} 원</p>
+                                ) : ''}
+                            </div>
+                            {this.state.prices.addition? (
+                                    <Form.Text className="text-muted">
+                                        {this.state.prices.addition_sender && this.state.prices.addition_receiver
+                                            ? '※ 픽업지와 도착지가 모두'
+                                            : this.state.prices.addition_sender
+                                                ? '※ 픽업지가'
+                                                : this.state.prices.addition_receiver
+                                                    ? '※ 도착지가'
+                                                    : ''}
+                                        {` 지하철역으로부터 700m 바깥에 있어서 배송 가격이 ${this.state.prices.addition.toLocaleString()}원 상승했습니다`}
+                                    </Form.Text>
+                            ) : null}
+                        </Form.Label>
+                    </Form.Group>
                 </div>
             </div>
         )
