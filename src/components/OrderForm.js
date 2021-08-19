@@ -124,7 +124,7 @@ class OrderForm extends React.Component {
         await event.preventDefault();
         await event.stopPropagation();
 
-        if (this.state.prices.distance_subway_sender >= 1000 || this.state.prices.distance_subway_receiver >= 1000) {
+        if (this.state.prices.distance_subway_sender >= 2000 || this.state.prices.distance_subway_receiver >= 2000) {
             alert("입력하신 물품 픽업지 또는 배송지가 지하철역으로부터 너무 멀어 접수가 어렵습니다!")
             this.setState({isSubmitting: false});
             return 0
@@ -324,7 +324,7 @@ class OrderForm extends React.Component {
                                         value={this.state.sender_address_detail}
                                         onChange={event => this.on_change(event)}
                                         placeholder="상세 주소 입력" required/>
-                                    {this.state.prices.distance_subway_sender >= 1000 && (
+                                    {this.state.prices.distance_subway_sender >= 2000 && (
                                         <Form.Text className="text-danger">
                                             입력하신 물품 픽업지가 지하철역으로부터 너무 멀어 접수가 어렵습니다!
                                         </Form.Text>
