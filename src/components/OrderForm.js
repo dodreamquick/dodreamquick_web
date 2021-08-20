@@ -482,7 +482,7 @@ class OrderForm extends React.Component {
                                         name="carry_item"
                                         value={this.state.carry_item}
                                         onChange={event => this.on_change(event) && this.alert_cake(event)}
-                                        placeholder="예: 꽃 바구니"/>
+                                        placeholder="예:꽃바구니"/>
                                 </div>
                             </Form.Group>
 
