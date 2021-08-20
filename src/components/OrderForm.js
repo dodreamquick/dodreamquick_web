@@ -494,7 +494,7 @@ class OrderForm extends React.Component {
                                         name="carry_item_price"
                                         value={this.state.carry_item_price}
                                         onChange={event => this.on_change(event)}
-                                        placeholder="예: 50000"/>
+                                        placeholder="예:50000"/>
                                     <Form.Text className="text-muted">
                                         물품가액이 300,000원 이상일 경우 원칙적으로 주문 접수가 거절될 수 있습니다.
                                     </Form.Text>
